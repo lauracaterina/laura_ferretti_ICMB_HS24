@@ -2,8 +2,6 @@
 title: "About"
 ---
 
-About this site
+This website contains my ongoing assignments for the course Introduction to Computational Modeling of Behavior (HS24, University of Zurich).
 
-```{r}
-1 + 1
-```
+**Author:** Laura Ferretti
