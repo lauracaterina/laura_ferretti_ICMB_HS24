@@ -1,0 +1,201 @@
+---
+title: "Assignment 2: Replicate Simulation"
+---
+
+**Make list with normal distribution data**
+
+```{r}
+N  <- 5000 # Default size of the population
+MU <- 100 # Default mean of the population
+
+population <- rnorm(N, mean = MU, sd = MU / 5)
+hist(population) #check whether it's normally distributed
+```
+
+**Compute Gini coefficient**
+
+```{r}
+gini <- function(y) {
+  #Compute the Gini coefficient (a measure of equality/inequality) in a population, y
+  y <- sort(y)
+  n <- length(y)
+  numer <- 2 * sum((1:n) * y[1:n]) #for i in range starts with 0 in python, indexing also with 0
+  denom <- n * sum(y)
+   return((numer / denom) - (n + 1) / n) #brackets are needed for return fun in R
+}
+gini(population)
+```
+
+**Define Transactions function**
+
+```{r}
+random_split <- function(A, B) {
+  #Take all the money in the pot and divide it randomly between the two actors
+  pot <- A + B
+  share <- runif(1,0,pot)
+  return(c(share, pot-share))
+}
+random_split(100,100)
+```
+
+**Define Interaction function**
+
+```{r}
+anyone <- function(N) {
+ return(sample(N,2))
+}
+
+anyone(N)
+
+
+```
+
+**Simulation**
+
+First, I need to figure out, whether my code idea will work
+
+```{r echo = FALSE, eval = FALSE}
+
+j <- anyone(length(population))
+j
+population[941]
+population[j[1]]
+population[2724]
+population[j[2]]
+newmoney <- random_split(population[j[1]], population[j[2]]) 
+newmoney
+population[j[1]] <- newmoney[1]
+population[j[2]] <- newmoney[2]
+
+population[j[1]]
+population[j[2]]
+```
+
+Now I can define the function that will split the money between two agents and save the new money that they have for each agent (one step of the simulation)
+
+```{r}
+step <- function(population, transaction_fun=random_split, interaction_fun=anyone) {
+  #Modify the population by doing one transaction.
+  j <- interaction_fun(length(population))
+  newmoney <- transaction_fun(population[j[1]], population[j[2]]) 
+  population[j[1]] <- newmoney[1]
+  population[j[2]] <- newmoney[2]
+ return(population)
+}
+
+
+```
+
+Now I can define the function of the whole simulation
+
+```{r}
+
+simulate <- function(population, T, step_fun=step, transaction_fun=random_split, interaction_fun=anyone) {
+    #Run simulation on population for T transactions; save every step in list
+  pop_copy <- population #I can directly copy, doesn't change og pop list
+  
+  #instead of yield, make a list
+  list_steps <- list()
+
+  list_steps[[1]] <- pop_copy
+  
+  for (t in 1:T) {
+    pop_copy <- step_fun(population, transaction_fun, interaction_fun)
+    list_steps[[t + 1]] <- pop_copy
+  }
+  return(list_steps)
+}
+
+
+simulate(population = c(100,100,100,100), T=10)
+
+```
+
+**Simulation Visualization**
+
+```{r}
+show <- function(population, k=40, percentiles=c(1, 10, 50, 90, 99)) {
+    #Run a simulation for k*N steps, printing statistics and displaying a plot and histogram
+  N <- length(population)
+
+  # Run simulation
+y <- simulate(population, T=N*k)#every person does k transactions
+  
+  results <- data.frame()
+  for (t in 1:N*k) {
+    if ((t %% (N*k %/% 10)) == 0) {#only save ten steps
+      results[[length(results) + 1]] <- sort(y[[t]])
+      t
+    }
+  }
+
+} 
+  
+#     # Printout:
+#   cat('   t    Gini stdev', sprintf(' %3d%%', percentiles), '\n')
+#   cat('------- ---- -----', paste(rep(' ----', length(percentiles)), collapse = ''), '\n')
+#   fmt <- '%7d %.2f %5.1f'
+#   t <- 1
+#   for (result in results) {
+#     
+#     pop <- result$pop
+#     if (t %% (k * N / 10) == 0) {
+#       data <- sapply(percentiles, function(pct) percent(pct, pop))
+#       cat(sprintf(fmt, t, gini(pop), sd(pop), data), '\n')
+#     }
+#   }
+#    
+#   
+# }
+
+# show(population)
+# 
+# 
+# 
+#     library(ggplot2)
+# 
+# show <- function(population, k = 40, percentiles = c(1, 10, 50, 90, 99), ...) {
+#   N <- length(population)
+#   start <- as.list(population)
+#   
+#   
+#   results <- lapply(seq(0, k * N - 1, by = N / 10), function(t) {
+#     pop <- simulate(population, T = k * N, ...)
+#     return(list(t = t, pop = sort(pop)))
+#   })
+#   
+# 
+#   
+#   # Plotting
+#   times <- sapply(results, function(res) res$t)
+#   line_data <- lapply(percentiles, function(pct) sapply(results, function(res) percent(pct, res$pop)))
+#   
+#   plot(NULL, xlim = range(c(start, population)), ylim = range(times), xlab = 'wealth', ylab = 'time', main = paste(percentiles, collapse = '/'), type = 'n')
+#   grid()
+#   for (i in seq_along(percentiles)) {
+#     lines(line_data[[i]], times, col = i)
+#   }
+#   legend("topright", legend = percentiles, col = seq_along(percentiles), lty = 1)
+#   
+#   # Histograms
+#   R <- range(c(population, start))
+#   par(mfrow = c(1, 2))
+#   hist(start, main = 'start', xlim = R)
+#   hist(population, main = 'end', xlim = R)
+#   
+#   # Ordered Curves
+#   order <- seq_along(population)
+#   plot(sort(start), order, type = 'l', col = 'blue', xlab = 'wealth', ylab = 'order', main = 'Ordered Curves')
+#   lines(sort(population), order, col = 'red')
+#   grid()
+#   legend("topright", legend = c('start', 'end'), col = c('blue', 'red'), lty = 1)
+# }
+# 
+# percent <- function(pct, items) {
+#   "The item that is pct percent through the sorted list of items."
+#   return(items[min(length(items), length(items) * pct %/% 100 + 1)])
+# }
+# 
+# 
+# show(population)
+```
