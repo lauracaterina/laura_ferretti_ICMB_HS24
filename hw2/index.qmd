@@ -114,7 +114,6 @@ simulate <- function(population, T, step_fun=step, transaction_fun=random_split,
 
 test <- simulate(population = c(100,100,100,100), T=10)
 
-test
 
 ```
 
@@ -149,11 +148,23 @@ y <- simulate(population, T=N*k)#every person does k transactions
           sprintf(' %4.0f', data), '\n')
     }
   }
+       ### Making histogram ###
+    #    R <- range(c(y[[1]]$population, y[[length(y)]]$population)) # Combines 'start' and 'pop' and computes the range
+    # 
+    # # Create the histogram for the start population
+    # hist(start, main="Histograms: Start", xlim=R, col=rgb(0.2, 0.4, 0.6, 0.7), 
+    #      xlab="Wealth", ylab="Frequency")
+    # 
+    # # Overlay the histogram for the end population
+    # hist(pop, main="Histograms: End", xlim=R, col=rgb(0.8, 0.2, 0.2, 0.5), 
+    #      add=TRUE, xlab="Wealth", ylab="Frequency")
+    # 
+    # # Add a legend to differentiate the histograms
+    # legend("topright", legend=c("Start", "End"), fill=c(rgb(0.2, 0.4, 0.6, 0.7), 
+    #        rgb(0.8, 0.2, 0.2, 0.5)))
   
 } 
 
 show(population = c(100,100,100,100,100,100,100,100,100,100))
 
-
-show(population)
 ```
