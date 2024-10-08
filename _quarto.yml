@@ -22,7 +22,6 @@ website:
     contents: 
       - index.qmd
       - hw1/index.qmd
-      - hw2/index.qmd
 
 format:
   html:
