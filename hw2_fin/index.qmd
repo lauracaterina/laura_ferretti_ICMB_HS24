@@ -53,7 +53,7 @@ anyone(N)
 
 First, I need to figure out, whether my code idea will work
 
-```{r eval = FALSE}
+```{r}
 
 j <- anyone(length(population))
 j
