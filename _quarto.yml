@@ -10,7 +10,7 @@ execute:
   cache: true
 
 website:
-  title: "Example Student: ICMB portfolio"
+  title: "Laura Ferretti: ICMB portfolio"
   back-to-top-navigation: true
   page-navigation: true
   navbar:
