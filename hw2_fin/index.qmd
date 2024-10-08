@@ -1,0 +1,163 @@
+---
+title: "Assignment 2: Simulation"
+---
+
+**Make list with normal distribution data**
+
+```{r}
+N  <- 5000 # Default size of the population
+MU <- 100 # Default mean of the population
+
+population <- rnorm(N, mean = MU, sd = MU / 5)
+hist(population) #check whether it's normally distributed
+```
+
+**Compute Gini coefficient**
+
+```{r}
+gini <- function(y) {
+  #Compute the Gini coefficient (a measure of equality/inequality) in a population, y
+  y <- sort(y)
+  n <- length(y)
+  numer <- 2 * sum((1:n) * y[1:n]) #for i in range starts with 0 in python, indexing also with 0
+  denom <- n * sum(y)
+   return((numer / denom) - (n + 1) / n) #brackets are needed for return fun in R
+}
+gini(population)
+```
+
+**Define Transactions function**
+
+```{r}
+random_split <- function(A, B) {
+  #Take all the money in the pot and divide it randomly between the two actors
+  pot <- A + B
+  share <- runif(1,0,pot)
+  return(c(share, pot-share))
+}
+random_split(100,100)
+```
+
+**Define Interaction function**
+
+```{r}
+anyone <- function(N) {
+ return(sample(N,2))
+}
+
+anyone(N)
+
+```
+
+**Simulation**
+
+First, I need to figure out, whether my code idea will work
+
+```{r echo = FALSE, eval = FALSE}
+
+j <- anyone(length(population))
+j
+population[941]
+population[j[1]]
+population[2724]
+population[j[2]]
+newmoney <- random_split(population[j[1]], population[j[2]]) 
+newmoney
+population[j[1]] <- newmoney[1]
+population[j[2]] <- newmoney[2]
+
+population[j[1]]
+population[j[2]]
+```
+
+Now I can define the function that will split the money between two agents and save the new money that they have for each agent (one step of the simulation)
+
+```{r}
+step <- function(population, transaction_fun=random_split, interaction_fun=anyone) {
+  #Modify the population by doing one transaction.
+  j <- interaction_fun(length(population))
+  newmoney <- transaction_fun(population[j[1]], population[j[2]]) 
+  population[j[1]] <- newmoney[1]
+  population[j[2]] <- newmoney[2]
+ return(population)
+}
+```
+
+Now I can define the function of the whole simulation
+
+```{r}
+simulate <- function(population, T, step_fun=step, transaction_fun=random_split, interaction_fun=anyone) {
+  # Run simulation on population for T transactions; save every step in a list
+  pop_copy <- population # Make a copy of the original population list to avoid altering it
+
+  # Initialize an empty list to store steps
+  list_steps <- list()
+  
+  # Save the initial population (at t = 0)
+  list_steps[[1]] <- list(population = pop_copy, t = 0)
+  
+  # Simulate T steps
+  for (t in 1:T) {
+    # Update population using the step function
+    pop_copy <- step_fun(pop_copy, transaction_fun, interaction_fun)
+    
+    # Save the current population and the step number
+    list_steps[[t + 1]] <- list(population = pop_copy, t = t)
+  }
+  
+  return(list_steps)  # Return the list of steps
+}
+
+test <- simulate(population = c(100,100,100,100), T=10)
+```
+
+**Simulation Visualization**
+
+```{r}
+
+  
+show <- function(population, k=40, percentiles=c(1, 10, 50, 90, 99)) {
+    #Run a simulation for k*N steps, printing statistics and displaying a plot and histogram
+  N <- length(population)
+
+  # Run simulation
+y <- simulate(population, T=N*k)#every person does k transactions
+  cat('   t    Gini stdev', sprintf(' %3d%%', percentiles), '\n')
+   cat('------- ---- -----', paste(rep(' ---- ', length(percentiles)), collapse = ''), '\n')
+   fmt <- '%7d %.2f %5.1f'
+   
+   #make sure that the first row is added (in my simulation result, the first row has the 0 step)
+   pop <- sort(y[[1]]$population)
+      data <- sapply(percentiles, function(pct) quantile(pop, pct/100))
+       cat(sprintf(fmt, y[[1]]$t, gini(y[[1]]$population), sd(pop)), 
+          sprintf(' %4.0f', data), '\n')
+   
+
+  for (l in 1:N*k) {
+    if ((l %% (N*k %/% 10)) == 0) {#only save ten steps (which is divisable in ten steps)
+      
+      pop <- sort(y[[l+1]]$population)
+      data <- sapply(percentiles, function(pct) quantile(pop, pct/100))
+       cat(sprintf(fmt, y[[l+1]]$t, gini(y[[l+1]]$population), sd(pop)), 
+          sprintf(' %4.0f', data), '\n')
+    }
+  }
+       ### Making histogram ###
+    #    R <- range(c(y[[1]]$population, y[[length(y)]]$population)) # Combines 'start' and 'pop' and computes the range
+    # 
+    # # Create the histogram for the start population
+    # hist(start, main="Histograms: Start", xlim=R, col=rgb(0.2, 0.4, 0.6, 0.7), 
+    #      xlab="Wealth", ylab="Frequency")
+    # 
+    # # Overlay the histogram for the end population
+    # hist(pop, main="Histograms: End", xlim=R, col=rgb(0.8, 0.2, 0.2, 0.5), 
+    #      add=TRUE, xlab="Wealth", ylab="Frequency")
+    # 
+    # # Add a legend to differentiate the histograms
+    # legend("topright", legend=c("Start", "End"), fill=c(rgb(0.2, 0.4, 0.6, 0.7), 
+    #        rgb(0.8, 0.2, 0.2, 0.5)))
+  
+} 
+
+show(population = c(100,100,100,100,100,100,100,100,100,100))
+```
