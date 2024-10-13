@@ -109,6 +109,8 @@ simulate <- function(population, T, step_fun=step, transaction_fun=random_split,
 }
 
 test <- simulate(population = c(100,100,100,100), T=10)
+
+    
 ```
 
 **Simulation Visualization**
@@ -142,22 +144,19 @@ y <- simulate(population, T=N*k)#every person does k transactions
           sprintf(' %4.0f', data), '\n')
     }
   }
-       ### Making histogram ###
-    #    R <- range(c(y[[1]]$population, y[[length(y)]]$population)) # Combines 'start' and 'pop' and computes the range
-    # 
-    # # Create the histogram for the start population
-    # hist(start, main="Histograms: Start", xlim=R, col=rgb(0.2, 0.4, 0.6, 0.7), 
-    #      xlab="Wealth", ylab="Frequency")
-    # 
-    # # Overlay the histogram for the end population
-    # hist(pop, main="Histograms: End", xlim=R, col=rgb(0.8, 0.2, 0.2, 0.5), 
-    #      add=TRUE, xlab="Wealth", ylab="Frequency")
-    # 
-    # # Add a legend to differentiate the histograms
-    # legend("topright", legend=c("Start", "End"), fill=c(rgb(0.2, 0.4, 0.6, 0.7), 
-    #        rgb(0.8, 0.2, 0.2, 0.5)))
+    
+       
+       ## Making histogram ###
+       
+ hist(y[[N*k]][["population"]],col = rgb(1, 0, 0, 0.3), main = "Overlapping Histograms", xlab = "Wealth", ylab = "Count") 
+ 
+ # Overlay the second histogram
+hist(y[[1]][["population"]], col = rgb(0, 0, 1, 0.3), add = TRUE)
+ 
+legend("topright", legend = c("End", "Start"), 
+       fill = c(rgb(1, 0, 0, 0.3), rgb(0, 0, 1, 0.3))) 
   
 } 
 
-show(population = c(100,100,100,100,100,100,100,100,100,100))
+show(population)
 ```
