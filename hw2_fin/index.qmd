@@ -51,7 +51,7 @@ anyone(N)
 
 **Simulation**
 
-First, I need to figure out, whether my code idea will work
+First, I need to figure out, whether my code idea will work.
 
 ```{r, results="hide"}
 
