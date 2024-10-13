@@ -2,6 +2,8 @@
 title: "Assignment 2: Simulation"
 ---
 
+# **Simulation**
+
 **Make list with normal distribution data**
 
 ```{r}
@@ -146,12 +148,15 @@ y <- simulate(population, T=N*k)#every person does k transactions
   }
     
        
-       ## Making histogram ###
+# Making histogram 
+breaks <- seq(min(c(y[[N*k]][["population"]], y[[1]][["population"]])), 
+               max(c(y[[N*k]][["population"]], y[[1]][["population"]])), 
+               length.out = 30)
        
- hist(y[[N*k]][["population"]],col = rgb(1, 0, 0, 0.3), main = "Overlapping Histograms", xlab = "Wealth", ylab = "Count") 
+ hist(y[[N*k]][["population"]],col = rgb(1, 0, 0, 0.3), main = "Overlapping Histograms", xlab = "Wealth", ylab = "Count", breaks=breaks) 
  
  # Overlay the second histogram
-hist(y[[1]][["population"]], col = rgb(0, 0, 1, 0.3), add = TRUE)
+hist(y[[1]][["population"]], col = rgb(0, 0, 1, 0.3), add = TRUE, breaks=breaks)
  
 legend("topright", legend = c("End", "Start"), 
        fill = c(rgb(1, 0, 0, 0.3), rgb(0, 0, 1, 0.3))) 
@@ -161,9 +166,9 @@ legend("topright", legend = c("End", "Start"),
 
 ```
 
-**Part 2 of the Assignment**
+# **Part 2 of the Assignment**
 
-Starting with normal distribution:
+**Starting with normal distribution:**
 
 ```{r}
 show(population)
@@ -213,8 +218,11 @@ y <- simulate(population, T=N*k)#every person does k transactions
     
        
        ## Making histogram ###
+breaks <- seq(min(c(y[[N*k]][["population"]], y[[1]][["population"]])), 
+               max(c(y[[N*k]][["population"]], y[[1]][["population"]])), 
+               length.out = 30)
        
- hist(y[[N*k]][["population"]],col = rgb(1, 0, 0, 0.3), main = "Overlapping Histograms", xlab = "Wealth", ylab = "Count") 
+ hist(y[[N*k]][["population"]],col = rgb(1, 0, 0, 0.3), main = "Normal distribution, with middle distribution of wealth", xlab = "Wealth", ylab = "Count") 
  
  # Overlay the second histogram
 hist(y[[1]][["population"]], col = rgb(0, 0, 1, 0.3), add = TRUE)
@@ -229,8 +237,29 @@ legend("topright", legend = c("End", "Start", "Middle"),
 show2(population)
 ```
 
-It seems that it finds a state where it's in a stable distribution and then more or less stays like this (Gini changes from 0.49-0.51). Looking at the table, it seems to happen rather quickly. If every meeting and distribution happens randomly, could it be that the distribution randomly lands on this distribution but then stays like that? Why does it stay like that? I'd like to use a smaller population to see what happens in this case.
+It seems that it finds a state where it's in a stable distribution and then more or less stays like this (Gini changes from 0.49-0.51). Looking at the table, it seems to happen rather quickly. If every meeting and distribution happens randomly, could it be that the distribution randomly lands on this "stable distribution" but then stays like that? Why does it stay like that? I'd like to use a smaller population to see what happens in this case.
 
 ```{r}
 show(population = c(100,100,100,100,100,100,100,100,100,100))
 ```
+
+Let me look at each step in this smaller simulation.
+
+```{r, results='hide'}
+test <- simulate(population = c(100,100,100,100,100,100,100,100,100,100), 40)
+test
+
+```
+
+I would describe two facts that can be observed:
+
+1\) Since the distribution is random, there's a small probability that it will be split in half. There are more situations were one person gets more money and the other gets less. This gets repeatedly enough times, so that there is less equality. But why does the inequality stabilize were many people are poor?
+
+The general amount of money is the same in the end and in the beginning. It only gets distributed. A distribution were many people are wealthy and not a lot of people are poor isn't possible because of this.
+
+2\) If many people don't have a lot of wealth, there's a higher probability that two people will meet who don't have a lot of money. In this case it will randomly be divided, but the beginning pool will be rather small. There are not a lot of people who have a lot of money, the probably is high, that they will meet someone who doesn't have a lot of money.
+
+In the graph above with the title "Normal distribution, with middle distribution of wealth", we can see that in the middle, there are some people who are richer than in the end distribution. That means and even the wealthy people get poorer.
+
+\
+\
