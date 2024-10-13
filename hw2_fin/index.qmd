@@ -158,5 +158,79 @@ legend("topright", legend = c("End", "Start"),
   
 } 
 
+
+```
+
+**Part 2 of the Assignment**
+
+Starting with normal distribution:
+
+```{r}
 show(population)
+```
+
+What if everybody starts with the same amount of money:
+
+```{r}
+N  <- 5000 # Default size of the population
+initial_money <- 100 # Beggining wealth
+
+population2 <- rep(initial_money, N)
+hist(population2) #check whether it's equally distributed
+
+show(population2)
+```
+
+There is still the same final pattern and the same final Gini coeffcient. The starting distribution seems to be irrelevant. From looking at the table, it seems like the switch to the final distribution happens quite quickly (already after 2000 transactions). Let me look at it more closely.
+
+```{r}
+show2 <- function(population, k=40, percentiles=c(1, 10, 50, 90, 99)) {
+    #Run a simulation for k*N steps, printing statistics and displaying a plot and histogram
+  N <- length(population)
+
+  # Run simulation
+y <- simulate(population, T=N*k)#every person does k transactions
+  cat('   t    Gini stdev', sprintf(' %3d%%', percentiles), '\n')
+   cat('------- ---- -----', paste(rep(' ---- ', length(percentiles)), collapse = ''), '\n')
+   fmt <- '%7d %.2f %5.1f'
+   
+   #make sure that the first row is added (in my simulation result, the first row has the 0 step)
+   pop <- sort(y[[1]]$population)
+      data <- sapply(percentiles, function(pct) quantile(pop, pct/100))
+       cat(sprintf(fmt, y[[1]]$t, gini(y[[1]]$population), sd(pop)), 
+          sprintf(' %4.0f', data), '\n')
+   
+
+  for (l in 1:N*k) {
+    if ((l %% (N*k %/% 20)) == 0) {#only save 20 steps (which is divisable in ten steps)
+      
+      pop <- sort(y[[l+1]]$population)
+      data <- sapply(percentiles, function(pct) quantile(pop, pct/100))
+       cat(sprintf(fmt, y[[l+1]]$t, gini(y[[l+1]]$population), sd(pop)), 
+          sprintf(' %4.0f', data), '\n')
+    }
+  }
+    
+       
+       ## Making histogram ###
+       
+ hist(y[[N*k]][["population"]],col = rgb(1, 0, 0, 0.3), main = "Overlapping Histograms", xlab = "Wealth", ylab = "Count") 
+ 
+ # Overlay the second histogram
+hist(y[[1]][["population"]], col = rgb(0, 0, 1, 0.3), add = TRUE)
+
+hist(y[[(N*k)/2]][["population"]], col = rgb(0, 1, 0, 0.3), add = TRUE)
+ 
+legend("topright", legend = c("End", "Start", "Middle"), 
+       fill = c(rgb(1, 0, 0, 0.3), rgb(0, 0, 1, 0.3),rgb(0, 1, 0, 0.3))) 
+  
+} 
+
+show2(population)
+```
+
+It seems that it finds a state where it's in a stable distribution and then more or less stays like this (Gini changes from 0.49-0.51). Looking at the table, it seems to happen rather quickly. If every meeting and distribution happens randomly, could it be that the distribution randomly lands on this distribution but then stays like that? Why does it stay like that? I'd like to use a smaller population to see what happens in this case.
+
+```{r}
+show(population = c(100,100,100,100,100,100,100,100,100,100))
 ```
