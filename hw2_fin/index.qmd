@@ -259,7 +259,7 @@ The general amount of money is the same in the end and in the beginning. It only
 
 2\) If many people don't have a lot of wealth, there's a higher probability that two people will meet who don't have a lot of money. In this case it will randomly be divided, but the beginning pool will be rather small. There are not a lot of people who have a lot of money, the probably is high, that they will meet someone who doesn't have a lot of money.
 
-In the graph above with the title "Normal distribution, with middle distribution of wealth", we can see that in the middle, there are some people who are richer than in the end distribution. That means and even the wealthy people get poorer.
+In the histogram above with three steps (including the middle step), we can see that in the middle, there are some people who are richer than in the end distribution. That means and even the wealthy people get poorer.
 
 \
 \
